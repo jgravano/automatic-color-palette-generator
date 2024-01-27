@@ -17,12 +17,38 @@ const ColorPalette = styled('div')(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-const ColorBox = styled('div')({
+const ColorBox = styled('div')(({ theme }) => ({
   width: '50px',
   height: '50px',
-});
+  position: 'relative',
+  marginRight: theme.spacing(1),
+  '&:hover': {
+    cursor: 'pointer',
+  },
+}));
+
+const Tooltip = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  bottom: '100%',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  marginBottom: theme.spacing(1),
+  padding: theme.spacing(0.5),
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  color: 'white',
+  borderRadius: theme.shape.borderRadius,
+  textAlign: 'center',
+  visibility: 'hidden', 
+  opacity: 0,
+  transition: 'opacity 0.3s ease-in-out',
+  '&.visible': {
+    visibility: 'visible',
+    opacity: 1,
+  },
+}));
 
 function ImageUploader() {
+  const [hoverIndex, setHoverIndex] = useState(-1);
   const [imageSrc, setImageSrc] = useState(null);
   const { data: palette, loading, error } = usePalette(imageSrc, 6, 'hex', {
     crossOrigin: 'anonymous',
@@ -68,6 +94,7 @@ function ImageUploader() {
     });
   };
 
+
   return (
     <div onDrop={handleDrop} onDragOver={handleDragOver}>
       <div>
@@ -84,10 +111,16 @@ function ImageUploader() {
               {Array.isArray(palette) && !loading && !error &&
                 palette.map((color, index) => (
                   <ColorBox
-                    key={index}
-                    style={{ backgroundColor: color }}
-                    onClick={() => handleCopyColor(color)}
-                  />
+                  key={index}
+                  style={{ backgroundColor: color }}
+                  onMouseEnter={() => setHoverIndex(index)} // Al entrar el cursor
+                  onMouseLeave={() => setHoverIndex(-1)} // Al salir el cursor
+                  onClick={() => handleCopyColor(color)}
+                >
+                  <Tooltip className={hoverIndex === index ? 'visible' : ''}>
+                    {color}
+                  </Tooltip>
+                </ColorBox>
                 ))}
             </ColorPalette>
           </>
