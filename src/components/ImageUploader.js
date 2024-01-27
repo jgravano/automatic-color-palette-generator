@@ -1,7 +1,43 @@
 import React, { useState } from 'react';
-import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 import { usePalette } from 'color-thief-react';
+
+const UploadArea = styled(Paper)(({ theme }) => ({
+  height: 200,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: theme.spacing(2),
+  cursor: 'pointer',
+  background: theme.palette.action.hover,
+  borderStyle: 'dashed',
+}));
+
+const PreviewImage = styled('img')(({ theme }) => ({
+  maxHeight: '400px',
+  maxWidth: '100%',
+  display: 'block', // or 'none' if no image is uploaded
+  margin: '0 auto',
+  marginBottom: theme.spacing(2),
+}));
+
+const ColorPalette = styled(Stack)({
+  direction: 'row',
+  spacing: 1,
+  marginBottom: 2,
+});
+
+const CopyButtons = styled(Stack)(({ theme }) => ({
+  direction: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  '& button': {
+    margin: theme.spacing(1),
+  },
+}));
 
 const Input = styled('input')({
   display: 'none',
@@ -10,11 +46,6 @@ const Input = styled('input')({
 const ImagePreview = styled('img')(({ theme }) => ({
   marginTop: theme.spacing(2),
   maxHeight: '300px',
-}));
-
-const ColorPalette = styled('div')(({ theme }) => ({
-  display: 'flex',
-  marginTop: theme.spacing(2),
 }));
 
 const ColorBox = styled('div')(({ theme }) => ({
@@ -38,7 +69,7 @@ const Tooltip = styled('div')(({ theme }) => ({
   color: 'white',
   borderRadius: theme.shape.borderRadius,
   textAlign: 'center',
-  visibility: 'hidden', 
+  visibility: 'hidden',
   opacity: 0,
   transition: 'opacity 0.3s ease-in-out',
   '&.visible': {
@@ -96,37 +127,42 @@ function ImageUploader() {
 
 
   return (
-    <div onDrop={handleDrop} onDragOver={handleDragOver}>
-      <div>
+    <Stack spacing={2} sx={{ width: '100%', margin: 'auto', maxWidth: 600 }}>
+      <UploadArea onDrop={handleDrop} onDragOver={handleDragOver}>
         <label htmlFor="upload-image">
+          {imageSrc ? (
+            <PreviewImage src={imageSrc} alt="Uploaded" />
+          ) : (
+            "Click here to upload or drag and drop"
+          )}
           <Input accept="image/*" id="upload-image" type="file" onChange={handleImageChange} />
-          <Button variant="contained" color="primary" component="span">
-            Upload Image
-          </Button>
         </label>
-        {imageSrc && (
-          <>
-            <ImagePreview src={imageSrc} alt="Uploaded" />
-            <ColorPalette>
-              {Array.isArray(palette) && !loading && !error &&
-                palette.map((color, index) => (
-                  <ColorBox
-                  key={index}
-                  style={{ backgroundColor: color }}
-                  onMouseEnter={() => setHoverIndex(index)} // Al entrar el cursor
-                  onMouseLeave={() => setHoverIndex(-1)} // Al salir el cursor
-                  onClick={() => handleCopyColor(color)}
-                >
-                  <Tooltip className={hoverIndex === index ? 'visible' : ''}>
-                    {color}
-                  </Tooltip>
-                </ColorBox>
-                ))}
-            </ColorPalette>
-          </>
-        )}
-      </div>
-    </div>
+      </UploadArea>
+      {palette && (
+        <>
+          <ColorPalette>
+            {palette.map((color, index) => (
+              <ColorBox
+                key={index}
+                style={{ backgroundColor: color }}
+                onMouseEnter={() => setHoverIndex(index)}
+                onMouseLeave={() => setHoverIndex(-1)}
+                onClick={() => handleCopyColor(color)}
+              >
+                <Tooltip className={hoverIndex === index ? 'visible' : ''}>
+                  {color}
+                </Tooltip>
+              </ColorBox>
+            ))}
+          </ColorPalette>
+          <CopyButtons>
+            <Button variant="outlined">Copy as CSS</Button>
+            <Button variant="outlined">Copy as JSON</Button>
+            <Button variant="outlined">Copy as HEX</Button>
+          </CopyButtons>
+        </>
+      )}
+    </Stack>
   );
 }
 
