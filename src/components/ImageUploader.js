@@ -1,47 +1,69 @@
 import React, { useState } from 'react';
-import { Button } from '@mui/material';
-import { makeStyles, createStyles } from '@mui/styles';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
+import { usePalette } from 'color-thief-react';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    input: {
-      display: 'none',
-    },
-    imagePreview: {
-      marginTop: theme.spacing(2),
-      maxHeight: '300px',
-    },
-  })
-);
+const Input = styled('input')({
+  display: 'none',
+});
+
+const ImagePreview = styled('img')(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  maxHeight: '300px',
+}));
+
+const ColorPalette = styled('div')(({ theme }) => ({
+  display: 'flex',
+  marginTop: theme.spacing(2),
+}));
+
+const ColorBox = styled('div')({
+  width: '50px',
+  height: '50px',
+});
 
 function ImageUploader() {
-  const classes = useStyles();
-  const [image, setImage] = useState(null);
+  const [imageSrc, setImageSrc] = useState(null);
+
+  // Se asume que 'palette' devolverá un array de colores.
+  const { data: palette, loading, error } = usePalette(imageSrc, 6, 'hex', {
+    crossOrigin: 'anonymous',
+    quality: 10,
+  });
+
+  // Imprimir en consola el valor de 'palette' para depuración.
+  console.log('Palette:', palette);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => setImage(e.target.result);
+      reader.onload = (e) => {
+        setImageSrc(e.target.result);
+      };
       reader.readAsDataURL(file);
     }
   };
 
   return (
     <div>
-      <input
-        accept="image/*"
-        className={classes.input}
-        id="upload-image"
-        type="file"
-        onChange={handleImageChange}
-      />
       <label htmlFor="upload-image">
+        <Input accept="image/*" id="upload-image" type="file" onChange={handleImageChange} />
         <Button variant="contained" color="primary" component="span">
           Upload Image
         </Button>
       </label>
-      {image && <img src={image} alt="Uploaded" className={classes.imagePreview} />}
+      {imageSrc && (
+        <>
+          <ImagePreview src={imageSrc} alt="Uploaded" />
+          <ColorPalette>
+            {Array.isArray(palette) && !loading && !error && 
+              palette.map((color, index) => (
+                <ColorBox key={index} style={{ backgroundColor: color }} />
+              ))}
+          </ColorPalette>
+        </>
+      )}
     </div>
   );
 }
