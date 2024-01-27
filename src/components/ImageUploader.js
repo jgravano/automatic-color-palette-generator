@@ -45,25 +45,45 @@ function ImageUploader() {
     }
   };
 
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+      const file = event.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageSrc(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return (
-    <div>
-      <label htmlFor="upload-image">
-        <Input accept="image/*" id="upload-image" type="file" onChange={handleImageChange} />
-        <Button variant="contained" color="primary" component="span">
-          Upload Image
-        </Button>
-      </label>
-      {imageSrc && (
-        <>
-          <ImagePreview src={imageSrc} alt="Uploaded" />
-          <ColorPalette>
-            {Array.isArray(palette) && !loading && !error && 
-              palette.map((color, index) => (
-                <ColorBox key={index} style={{ backgroundColor: color }} />
-              ))}
-          </ColorPalette>
-        </>
-      )}
+    <div onDrop={handleDrop} onDragOver={handleDragOver}>
+      <div>
+        <label htmlFor="upload-image">
+          <Input accept="image/*" id="upload-image" type="file" onChange={handleImageChange} />
+          <Button variant="contained" color="primary" component="span">
+            Upload Image
+          </Button>
+        </label>
+        {imageSrc && (
+          <>
+            <ImagePreview src={imageSrc} alt="Uploaded" />
+            <ColorPalette>
+              {Array.isArray(palette) && !loading && !error &&
+                palette.map((color, index) => (
+                  <ColorBox key={index} style={{ backgroundColor: color }} />
+                ))}
+            </ColorPalette>
+          </>
+        )}
+      </div>
     </div>
   );
 }
