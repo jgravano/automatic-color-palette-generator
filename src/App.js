@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import ImageUploader from './components/ImageUploader';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -7,22 +7,17 @@ import Typography from '@mui/material/Typography';
 
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#f44336',
-    },
-    secondary: {
-      main: '#3f51b5',
-    },
+    mode: 'dark',
   },
 });
 
 function App() {
   return (
-    <ThemeProvider theme={theme}> 
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="sm" style={{ marginTop: '20px' }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Generador de Paletas de Colores
+          color palette generator
         </Typography>
         <ImageUploader />
       </Container>
