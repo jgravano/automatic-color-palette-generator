@@ -24,14 +24,11 @@ const ColorBox = styled('div')({
 
 function ImageUploader() {
   const [imageSrc, setImageSrc] = useState(null);
-
-  // Se asume que 'palette' devolverá un array de colores.
   const { data: palette, loading, error } = usePalette(imageSrc, 6, 'hex', {
     crossOrigin: 'anonymous',
     quality: 10,
   });
 
-  // Imprimir en consola el valor de 'palette' para depuración.
   console.log('Palette:', palette);
 
   const handleImageChange = (event) => {
@@ -63,6 +60,14 @@ function ImageUploader() {
     event.stopPropagation();
   };
 
+  const handleCopyColor = (color) => {
+    navigator.clipboard.writeText(color).then(() => {
+      console.log(`Color ${color} copied to the clipboard`);
+    }).catch(err => {
+      console.log('Something went wrong', err);
+    });
+  };
+
   return (
     <div onDrop={handleDrop} onDragOver={handleDragOver}>
       <div>
@@ -78,7 +83,11 @@ function ImageUploader() {
             <ColorPalette>
               {Array.isArray(palette) && !loading && !error &&
                 palette.map((color, index) => (
-                  <ColorBox key={index} style={{ backgroundColor: color }} />
+                  <ColorBox
+                    key={index}
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleCopyColor(color)}
+                  />
                 ))}
             </ColorPalette>
           </>
